@@ -99,7 +99,7 @@ else:
         )
 
         # Stream the response to the app using `st.write_stream`.
-        st.write_stream(stream)
-        st.write_stream(stream2)
-        st.write_stream(stream3)
-        st.write_stream(stream4)
+        st.write_stream("GPT-3.5: ", stream)
+        st.write_stream("GPT-4.1: ", stream2)
+        st.write_stream("GPT-5: ", stream3)
+        st.write_stream("GPT-5-Nano: ", stream4)
