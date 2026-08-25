@@ -1,12 +1,14 @@
 import streamlit as st
 from openai import OpenAI
+import PyMuPDF as fitz 
 
 # Show title and description.
-st.title("📄 Document question answering")
+st.title("My Document question answering")
 st.write(
     "Upload a document below and ask a question about it – GPT will answer! "
     "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
 )
+
 
 # Ask user for their OpenAI API key via `st.text_input`.
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
@@ -19,9 +21,9 @@ else:
     # Create an OpenAI client.
     client = OpenAI(api_key=openai_api_key)
 
-    # Let the user upload a file via `st.file_uploader`.
+    # Let the user upload a file via `st.file_uploader`. Only allow .txt, and .pdf files.
     uploaded_file = st.file_uploader(
-        "Upload a document (.txt or .md)", type=("txt", "md")
+        "Upload a document (.txt, or .pdf)", type=("txt",  "pdf")
     )
 
     # Ask the user for a question via `st.text_area`.
@@ -32,9 +34,17 @@ else:
     )
 
     if uploaded_file and question:
+        if uploaded_file.type == "application/pdf":
+            # Process the PDF file.
+            doc = fitz.open(uploaded_file)
+            document = ""
+            for page in doc:
+                document += page.get_text()
+            doc.close()
+        else:
+            # Process the text file.
+            document = uploaded_file.read().decode()
 
-        # Process the uploaded file and question.
-        document = uploaded_file.read().decode()
         messages = [
             {
                 "role": "user",
@@ -42,9 +52,31 @@ else:
             }
         ]
 
-        # Generate an answer using the OpenAI API.
+        # We are going to have 4 different models 
+        # (gpt-3.5, gpt-4.1, gpt-5-chat-latest, gpt-5-nano) and the
+        # output will have all 4 outputs.
+        # Generate an answer using the OpenAI API for each of the 4 models 
+        # and stream the response to the app using `st.write_stream`.
         stream = client.chat.completions.create(
             model="gpt-3.5-turbo",
+            messages=messages,
+            stream=True,
+        )
+        # Second model
+        stream2 = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=messages,
+            stream=True,
+        )
+        # Third model
+        stream3 = client.chat.completions.create(
+            model="gpt-5-chat-latest",
+            messages=messages,
+            stream=True,
+        )
+        # Fourth model
+        stream4 = client.chat.completions.create(
+            model="gpt-5-nano",
             messages=messages,
             stream=True,
         )
