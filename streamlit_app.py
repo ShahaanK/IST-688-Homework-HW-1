@@ -14,6 +14,16 @@ def validate_api_key(api_key):
     except APIError:
         return True
 
+
+def read_pdf(uploaded_file):
+    """Extract text from an uploaded PDF file."""
+    doc = pymupdf.open(stream=uploaded_file.read(), filetype="pdf")
+    document = ""
+    for page in doc:
+        document += page.get_text()
+    doc.close()
+    return document
+
 # Show title and description.
 st.title("My Document question answering")
 st.write(
@@ -51,17 +61,17 @@ else:
     )
 
     if uploaded_file and question:
-        if uploaded_file.type == "application/pdf":
-            # Process the PDF file.
-            doc = pymupdf.open(stream=uploaded_file.read(), filetype="pdf")
-            document = ""
-            for page in doc:
-                document += page.get_text()
-            doc.close()
-        else:
-            # Process the text file.
+        # Determine the file type from its extension.
+        file_extension = uploaded_file.name.split('.')[-1]
+        document = None
+        if file_extension == 'txt':
             document = uploaded_file.read().decode()
+        elif file_extension == 'pdf':
+            document = read_pdf(uploaded_file)
+        else:
+            st.error("Unsupported file type.")
 
+    if uploaded_file and question and document is not None:
         messages = [
             {
                 "role": "user",
