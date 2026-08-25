@@ -1,6 +1,18 @@
 import streamlit as st
-from openai import OpenAI
+from openai import OpenAI, AuthenticationError, APIError
 import pymupdf
+
+
+def validate_api_key(api_key):
+    # Validate the OpenAI API key 
+    try:
+        client = OpenAI(api_key=api_key)
+        client.models.list()
+        return True
+    except AuthenticationError:
+        return False
+    except APIError:
+        return True
 
 # Show title and description.
 st.title("My Document question answering")
@@ -16,6 +28,11 @@ st.write(
 openai_api_key = st.text_input("OpenAI API Key", type="password")
 if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
+elif not validate_api_key(openai_api_key):
+    st.error(
+        "That doesn't look like a valid OpenAI API key. "
+        "Please check it and enter a valid key to continue.",
+    )
 else:
 
     # Create an OpenAI client.
