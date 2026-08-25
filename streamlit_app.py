@@ -70,7 +70,7 @@ else:
         ]
 
         # We are going to have 4 different models 
-        # (gpt-3.5, gpt-4.1, gpt-5-chat-latest, gpt-5-nano) and the
+        # (gpt-3.5, gpt-4.1, gpt-5, gpt-5-nano) and the
         # output will have all 4 outputs.
         # Generate an answer using the OpenAI API for each of the 4 models 
         # and stream the response to the app using `st.write_stream`.
@@ -87,7 +87,7 @@ else:
         )
         # Third model
         stream3 = client.chat.completions.create(
-            model="gpt-5-chat-latest",
+            model="gpt-5",
             messages=messages,
             stream=True,
         )
