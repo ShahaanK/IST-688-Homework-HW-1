@@ -1,6 +1,6 @@
 import streamlit as st
 from openai import OpenAI
-import PyMuPDF as fitz 
+import pymupdf
 
 # Show title and description.
 st.title("My Document question answering")
@@ -36,7 +36,7 @@ else:
     if uploaded_file and question:
         if uploaded_file.type == "application/pdf":
             # Process the PDF file.
-            doc = fitz.open(uploaded_file)
+            doc = pymupdf.open(stream=uploaded_file.read(), filetype="pdf")
             document = ""
             for page in doc:
                 document += page.get_text()
